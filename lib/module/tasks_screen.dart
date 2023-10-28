@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/shared/components/component.dart';
+import 'package:todo_list/shared/components/consts.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -10,21 +12,14 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        child: MaterialButton(
-          onPressed: () async {
-            var name = await getName();
-            print(name);
-          },
-          color: Colors.blue,
-          child: Text('Click Here To get The Name'),
-        ),
+    return ListView.separated(
+      itemCount: tasks.length,
+      itemBuilder:(context , index)=> taskItemBuilder(tasks[index]) ,
+      separatorBuilder: (context ,index) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Container( height: 2.0,
+        color: Colors.blueGrey[200],),
       ),
-    );
-  }
 
-  Future<String> getName() async{
-    return" Marwa hussein";
-  }
-}
+    );
+}}
