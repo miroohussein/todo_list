@@ -80,7 +80,7 @@ Widget taskItemBuilder(Map model) {
             Text(
               '${model['Task']}',
               style: TextStyle(
-                  fontSize: 30.0,
+                  fontSize: 25.0,
                   fontWeight: FontWeight.bold,
                   color: Colors.black),
             ),
