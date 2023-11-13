@@ -27,7 +27,11 @@ class AppCubit extends Cubit<AppStates> {
   bool showSheetBar = false;
   IconData icon = Icons.edit;
   late Database database;
+  List<Map> newTasks = [];
   List<Map> tasks = [];
+  List<Map> doneTasks = [];
+  List<Map> archiveTasks = [];
+  int index = 0;
 
   void changeIndex(int index) {
     currentIndex = index;
@@ -41,11 +45,7 @@ class AppCubit extends Cubit<AppStates> {
           'CREATE TABLE Tasks (id INTEGER PRIMARY KEY, Task TEXT, Date TEXT, Note TEXT)');
       print("table created");
     }, onOpen: (database) {
-      getDataFromDatabase(database).then((value) {
-        tasks = value;
-        print(tasks);
-        emit(AppGetDatabaseState());
-      });
+      getDataFromDatabase(database);
       print("database Opened");
     }).then((value) {
       database = value;
@@ -54,19 +54,15 @@ class AppCubit extends Cubit<AppStates> {
   }
 
 ///////////////////////////////////////////////////////////////
-  insertToDataBase({required title, required date, required note}) async {
+  insertToDataBase({required title, required date, required time}) async {
     await database.transaction((txn) {
       return txn
           .rawInsert(
-              'INSERT INTO Tasks(Task, Date, Note) VALUES("$title", "$date", "$note")')
+              'INSERT INTO Tasks(Task, Date, Note, Time) VALUES("$title", "$date","New","$time")')
           .then((value) {
         print('Inserted $value');
         emit(AppInsertToDatabaseState());
-        getDataFromDatabase(database).then((value) {
-          tasks = value;
-          print(tasks);
-          emit(AppGetDatabaseState());
-        });
+        getDataFromDatabase(database);
       }).catchError((error) {
         print('error while inserting ${error.toString()}');
       });
@@ -81,9 +77,40 @@ class AppCubit extends Cubit<AppStates> {
   //   });
   //   return null;
   // });
-  Future<List<Map>> getDataFromDatabase(database) async {
+  void getDataFromDatabase(database) {
+    newTasks = [];
+    doneTasks = [];
+    archiveTasks = [];
+
     emit(AppGetDatabaseLoadingState());
-    return await database.rawQuery('SELECT * FROM Tasks');
+    database.rawQuery('SELECT * FROM Tasks').then((value) {
+      value.forEach((element) {
+        if (element['Note'] == 'archive')
+          archiveTasks.add(element);
+        else if (element['Note'] == 'done')
+          doneTasks.add(element);
+        else
+          newTasks.add(element);
+      });
+      tasks = value;
+      print(tasks);
+      emit(AppGetDatabaseState());
+    });
+  }
+
+  void updateDatabase({required String note, required int id}) async {
+    await database.rawUpdate(
+        'UPDATE Tasks SET Note = ? WHERE id = ?', ['$note', id]).then((value) {
+      getDataFromDatabase(database);
+      emit(AppUpdateToDatabaseState());
+    });
+  }
+
+  void deleteFromDatabase({ required int id}) async {
+    await database.rawDelete('DELETE FROM Tasks WHERE id = ?', [id]).then((value) {
+      getDataFromDatabase(database);
+      emit(AppDeleteFromDatabaseState());
+    });
   }
 
   void changeBottomSheeStste(

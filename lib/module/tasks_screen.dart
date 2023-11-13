@@ -18,15 +18,30 @@ class _TasksScreenState extends State<TasksScreen> {
     return BlocConsumer<AppCubit , AppStates>(
       listener:(builder , state){} ,
       builder: (builder , state){
-        return ListView.separated(
-          itemCount: AppCubit.get(context).tasks.length,
-          itemBuilder:(context , index)=> taskItemBuilder(AppCubit.get(context).tasks[index]) ,
+        var tasks = AppCubit.get(context).newTasks;
+        return tasks.length>0? ListView.separated(
+          itemCount: AppCubit.get(context).newTasks.length,
+          itemBuilder:(context , index)=> taskItemBuilder(AppCubit.get(context).newTasks[index],context) ,
           separatorBuilder: (context ,index) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Container( height: 2.0,
               color: Colors.blueGrey[100],),
           ),
 
+        ) : Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+
+            children: [
+              Icon(Icons.menu,
+              size: 100.0,
+              color: Colors.grey,),
+              Text('No Tasks Yet',style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.grey
+              ),),
+            ],
+          ),
         );
       },
     );

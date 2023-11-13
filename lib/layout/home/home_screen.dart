@@ -66,9 +66,9 @@ class HomeScreen extends StatelessWidget {
                 if (cubit.showSheetBar) {
                   if (formdKey.currentState!.validate()) {
                     cubit.insertToDataBase(
-                       title: textController.text,
+                      title: textController.text,
                       date:  dateController.text,
-                      note:  timeController.text
+                      time:  timeController.text,
                     ).then((value) {
                       cubit.changeBottomSheeStste(isShow: false, icondata: Icons.edit);
                       //showSheetBar = false;
